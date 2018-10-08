@@ -61,6 +61,11 @@ public class RelaunchClassLoader extends URLClassLoader
 
     private static final boolean DEBUG_CLASSLOADING = Boolean.parseBoolean(System.getProperty("fml.debugClassLoading", "false"));
     private static final boolean DEBUG_CLASSLOADING_FINER = DEBUG_CLASSLOADING && Boolean.parseBoolean(System.getProperty("fml.debugClassLoadingFiner", "false"));
+    // Unscrew start
+    
+    public final ThreadLocal<URL> currentCodeSource = new ThreadLocal<>();
+    
+    // Unscrew end
 
     public RelaunchClassLoader(URL[] sources)
     {
@@ -203,6 +208,9 @@ public class RelaunchClassLoader extends URLClassLoader
                 }
             }
             byte[] basicClass = getClassBytes(untransformedName);
+            // Unscrew start
+            currentCodeSource.set(urlConnection.getURL());
+            // Unscrew end
             byte[] transformedClass = runTransformers(untransformedName, transformedName, basicClass);
             Class<?> cl = defineClass(transformedName, transformedClass, 0, transformedClass.length, (urlConnection == null ? null : new CodeSource(urlConnection.getURL(), signers)));
             cachedClasses.put(transformedName, cl);

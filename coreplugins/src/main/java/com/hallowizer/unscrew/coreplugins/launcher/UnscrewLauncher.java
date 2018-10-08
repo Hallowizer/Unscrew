@@ -64,6 +64,7 @@ public class UnscrewLauncher {
 		classLoader.addClassLoaderExclusion("net.minecraftforge.fml.relauncher.");
 		
 		classLoader.addTransformerExclusion("com.hallowizer.unscrew.coreplugins.transformer.");
+		classLoader.addTransformerExclusion("com.hallowizer.unscrew.coreplugins.resource.");
 		classLoader.addTransformerExclusion("net.minecraftforge.fml.common.asm.transformers.");
 		classLoader.addTransformerExclusion("net.minecraftforge.fml.common.patcher.");
 	}

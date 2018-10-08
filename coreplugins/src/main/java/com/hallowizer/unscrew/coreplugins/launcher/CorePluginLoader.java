@@ -22,7 +22,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class CorePluginLoader {
 	private final String[] builtinCorePlugins = {
-			
+		"com.hallowizer.unscrew.coreplugins.UnscrewCorePlugin"
 	};
 	private final Yaml yaml = new Yaml();
 	private final List<CorePluginWrapper> corePlugins = new ArrayList<>();
