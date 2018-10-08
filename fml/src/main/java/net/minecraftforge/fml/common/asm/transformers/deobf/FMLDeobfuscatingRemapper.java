@@ -299,43 +299,104 @@ public class FMLDeobfuscatingRemapper extends Remapper {
         Map<String, String> fieldMap = getFieldMap(owner, raw);
         return fieldMap!=null && fieldMap.containsKey(name+":"+desc) ? fieldMap.get(name+":"+desc) : fieldMap!=null && fieldMap.containsKey(name+":null") ? fieldMap.get(name+":null") :name;
     }
+    
+    private String versionPkg;
 
     @Override
     public String map(String typeName)
     {
-        if (classNameBiMap == null || classNameBiMap.isEmpty())
-        {
-            return typeName;
-        }
-        if (classNameBiMap.containsKey(typeName))
-        {
-            return classNameBiMap.get(typeName);
-        }
-        int dollarIdx = typeName.lastIndexOf('$');
-        if (dollarIdx > -1)
-        {
-            return map(typeName.substring(0, dollarIdx)) + "$" + typeName.substring(dollarIdx + 1);
-        }
-        return typeName;
+    	// Unscrew: The class mappings aren't relevant, as BuildTools generates deobfuscated names. All we care about is putting the classes in the appropriate packages.
+//        if (classNameBiMap == null || classNameBiMap.isEmpty())
+//        {
+//            return typeName;
+//        }
+//        if (classNameBiMap.containsKey(typeName))
+//        {
+//            return classNameBiMap.get(typeName);
+//        }
+//        int dollarIdx = typeName.lastIndexOf('$');
+//        if (dollarIdx > -1)
+//        {
+//            return map(typeName.substring(0, dollarIdx)) + "$" + typeName.substring(dollarIdx + 1);
+//        }
+//        return typeName;
+    	// Unscrew start
+    	
+    	if (typeName.startsWith("org.bukkit.craftbukkit.")) {
+    		if (typeName.equals("org.bukkit.craftbukkit.Main"))
+    			return typeName;
+    		
+    		String[] parts = typeName.split(".");
+    		StringBuffer buf = new StringBuffer();
+    		for (int i = 0; i < parts.length; i++)
+    			if (i == 3)
+    				versionPkg = parts[i];
+    			else
+    				buf.append(".").append(parts[i]);
+    		
+    		return buf.toString().substring(1);
+    	}
+    	
+    	if (!typeName.startsWith("net.minecraft.server."))
+    		return typeName;
+    	
+    	if (classNameBiMap == null || classNameBiMap.isEmpty())
+    		return typeName;
+    	
+    	String[] parts = typeName.split(typeName); // net.minecraft.server.VERSION.CLASS
+    	versionPkg = parts[3];
+    	String endName = parts[4];
+    	
+    	for (String deobfName : classNameBiMap.values())
+    		if (deobfName.endsWith("." + endName))
+    			return deobfName;
+    	
+    	return typeName;
+    	
+    	// Unscrew end
     }
 
     public String unmap(String typeName)
     {
-        if (classNameBiMap == null || classNameBiMap.isEmpty())
-        {
-            return typeName;
-        }
-
-        if (classNameBiMap.containsValue(typeName))
-        {
-            return classNameBiMap.inverse().get(typeName);
-        }
-        int dollarIdx = typeName.lastIndexOf('$');
-        if (dollarIdx > -1)
-        {
-            return unmap(typeName.substring(0, dollarIdx)) + "$" + typeName.substring(dollarIdx + 1);
-        }
-        return typeName;
+    	// Unscrew: In the Spigot jar, every class follows the format of net.minecraft.server.v1_XX.ClassName, so that's the format we need.
+//        if (classNameBiMap == null || classNameBiMap.isEmpty())
+//        {
+//            return typeName;
+//        }
+//
+//        if (classNameBiMap.containsValue(typeName))
+//        {
+//            return classNameBiMap.inverse().get(typeName);
+//        }
+//        int dollarIdx = typeName.lastIndexOf('$');
+//        if (dollarIdx > -1)
+//        {
+//            return unmap(typeName.substring(0, dollarIdx)) + "$" + typeName.substring(dollarIdx + 1);
+//        }
+//        return typeName;
+    	// Unscrew start
+    	
+    	if (typeName.startsWith("org.bukkit.craftbukkit.")) {
+    		if (typeName.equals("org.bukkit.craftbukkit.Main"))
+    			return typeName;
+    		
+    		StringBuffer buf = new StringBuffer();
+    		String[] parts = typeName.split(".");
+    		
+    		for (int i = 0; i < parts.length; i++)
+    			buf.append(i == 3 ? ("." + versionPkg) : "").append(".").append(parts[i]);
+    		
+    		return buf.toString().substring(1);
+    	}
+    	
+    	if (!typeName.startsWith("net.minecraft."))
+    		return typeName;
+    	
+    	String[] parts = typeName.split(".");
+    	String endName = parts[parts.length-1];
+    	
+    	return "net.minecraft.server." + versionPkg + "." + endName;
+    	// Unscrew end
     }
 
 
