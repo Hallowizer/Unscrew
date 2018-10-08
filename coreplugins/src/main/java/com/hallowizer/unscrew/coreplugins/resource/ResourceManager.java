@@ -14,7 +14,6 @@ import java.util.jar.JarFile;
 
 import org.yaml.snakeyaml.Yaml;
 
-import com.google.common.collect.Iterables;
 import com.google.common.io.ByteStreams;
 import com.hallowizer.unscrew.api.resource.IResourceTransformer;
 import com.hallowizer.unscrew.api.resource.Resource;
