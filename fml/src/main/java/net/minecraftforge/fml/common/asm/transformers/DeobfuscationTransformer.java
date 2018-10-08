@@ -21,8 +21,8 @@ package net.minecraftforge.fml.common.asm.transformers;
 
 import java.util.Arrays;
 
-import com.hallowizer.unscrew.api.IClassNameTransformer; // Unscrew: Remove unused import
-import cpw.mods.fml.relauncher.IClassTransformer;
+import com.hallowizer.unscrew.api.IClassNameTransformer; // Unscrew: net.minecraft.launchwrapper.IClassNameTransformer -> com.hallowizer.unscrew.api.IClassNameTransformer
+import com.hallowizer.unscrew.api.IClassTransformer; // Unscrew: net.minecraft.launchwrapper.IClassTransformer -> com.hallowizer.unscrew.api.IClassTransformer
 // import net.minecraft.launchwrapper.Launch; // Unscrew: Remove unused import
 
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
