@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.stream.Collectors;
 
 import com.hallowizer.unscrew.api.CorePlugin;
+import com.hallowizer.unscrew.api.IClassNameTransformer;
 import com.hallowizer.unscrew.api.IClassTransformer;
 import com.hallowizer.unscrew.coreplugins.transformer.PluginWrapperTransformer;
+import com.hallowizer.unscrew.coreplugins.transformer.RenamingTransformer;
 
 import cpw.mods.fml.relauncher.RelaunchClassLoader;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,11 @@ public final class CorePluginWrapper {
 		
 		RelaunchClassLoader classLoader = (RelaunchClassLoader) instance.getClass().getClassLoader();
 		
-		for (IClassTransformer transformer : instance.getClassTransformers())
+		for (IClassTransformer transformer : instance.getClassTransformers()) {
 			classLoader.registerTransformer(new PluginWrapperTransformer(name, transformer));
+			
+			if (transformer instanceof IClassNameTransformer)
+				RenamingTransformer.addTransformer((IClassNameTransformer) transformer);
+		}
 	}
 }

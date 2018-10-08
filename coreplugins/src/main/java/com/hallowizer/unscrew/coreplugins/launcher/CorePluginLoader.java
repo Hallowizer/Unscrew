@@ -31,6 +31,7 @@ public class CorePluginLoader {
 	@SneakyThrows
 	public void launch(RelaunchClassLoader classLoader, File unscrewJarLocation) {
 		classLoader.registerTransformer("com.hallowizer.unscrew.coreplugins.transformer.PatchingTransformer");
+		classLoader.registerTransformer("com.hallowizer.unscrew.coreplugins.transformer.RenamingTransformer");
 		
 		for (String plugin : builtinCorePlugins)
 			loadCorePlugin(classLoader, null, plugin, unscrewJarLocation);
