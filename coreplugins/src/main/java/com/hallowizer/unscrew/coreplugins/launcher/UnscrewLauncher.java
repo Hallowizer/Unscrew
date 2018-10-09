@@ -23,7 +23,7 @@ public class UnscrewLauncher {
 		
 		if (oldClassLoader instanceof URLClassLoader)
 			newClassLoader = new RelaunchClassLoader(((URLClassLoader) oldClassLoader).getURLs());
-		else if (oldClassLoader.getClass().getName().equals("jdk.internal.loader.BuiltinClassLoader"))
+		else if (oldClassLoader.getClass().getSuperclass().getName().equals("jdk.internal.loader.BuiltinClassLoader"))
 			newClassLoader = new RelaunchClassLoader(findUrls(oldClassLoader));
 		else
 			throw new UnsupportedOperationException("Unsupported environment. Unknown class loader " + oldClassLoader.getClass().getName());
