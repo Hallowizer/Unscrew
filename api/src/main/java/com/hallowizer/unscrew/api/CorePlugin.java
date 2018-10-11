@@ -24,6 +24,10 @@ public abstract class CorePlugin {
 		return 0;
 	}
 	
+	public ILauncher getLauncher() {
+		return null;
+	}
+	
 	public JavaPlugin getBukkitPlugin() {
 		return null;
 	}

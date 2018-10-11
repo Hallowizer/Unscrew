@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.hallowizer.unscrew.api.CorePlugin;
 import com.hallowizer.unscrew.api.IClassNameTransformer;
 import com.hallowizer.unscrew.api.IClassTransformer;
+import com.hallowizer.unscrew.api.ILauncher;
 import com.hallowizer.unscrew.coreplugins.transformer.PluginWrapperTransformer;
 import com.hallowizer.unscrew.coreplugins.transformer.RenamingTransformer;
 
@@ -27,11 +28,17 @@ public final class CorePluginWrapper {
 		
 		RelaunchClassLoader classLoader = (RelaunchClassLoader) instance.getClass().getClassLoader();
 		
-		for (IClassTransformer transformer : instance.getClassTransformers()) {
-			classLoader.registerTransformer(new PluginWrapperTransformer(name, transformer));
-			
-			if (transformer instanceof IClassNameTransformer)
-				RenamingTransformer.addTransformer((IClassNameTransformer) transformer);
-		}
+		IClassTransformer[] transformers = instance.getClassTransformers();
+		if (transformers != null)
+			for (IClassTransformer transformer : instance.getClassTransformers()) {
+				classLoader.registerTransformer(new PluginWrapperTransformer(name, transformer));
+				
+				if (transformer instanceof IClassNameTransformer)
+					RenamingTransformer.addTransformer((IClassNameTransformer) transformer);
+			}
+		
+		ILauncher launcher = instance.getLauncher();
+		if (launcher != null)
+			CorePluginLoader.addLauncher(launcher);
 	}
 }

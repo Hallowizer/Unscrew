@@ -32,7 +32,9 @@ public class UnscrewLauncher {
 		File jarLocation = new File(jarUri);
 		
 		addExclusions(newClassLoader);
-		CorePluginLoader.launch(newClassLoader, jarLocation);
+		CorePluginLoader.setup(newClassLoader, jarLocation);
+		
+		CorePluginLoader.launch(args);
 	}
 	
 	@SuppressWarnings("unchecked")

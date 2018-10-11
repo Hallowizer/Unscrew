@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.hallowizer.unscrew.api.CorePlugin;
+import com.hallowizer.unscrew.api.ILauncher;
 
 import cpw.mods.fml.relauncher.RelaunchClassLoader;
 import lombok.SneakyThrows;
@@ -27,11 +28,14 @@ public class CorePluginLoader {
 	};
 	private final Yaml yaml = new Yaml();
 	private final List<CorePluginWrapper> corePlugins = new ArrayList<>();
+	private DefaultLauncherContext launcher;
 	
 	@SneakyThrows
-	public void launch(RelaunchClassLoader classLoader, File unscrewJarLocation) {
+	public void setup(RelaunchClassLoader classLoader, File unscrewJarLocation) {
 		classLoader.registerTransformer("com.hallowizer.unscrew.coreplugins.transformer.PatchingTransformer");
 		classLoader.registerTransformer("com.hallowizer.unscrew.coreplugins.transformer.RenamingTransformer");
+		
+		launcher = new DefaultLauncherContext(classLoader, new SpigotLauncher(), null);
 		
 		for (String plugin : builtinCorePlugins)
 			loadCorePlugin(classLoader, null, plugin, unscrewJarLocation);
@@ -83,5 +87,13 @@ public class CorePluginLoader {
 	
 	public List<CorePluginWrapper> getCorePlugins() {
 		return ImmutableList.copyOf(corePlugins);
+	}
+	
+	public void addLauncher(ILauncher newLauncher) {
+		launcher = new DefaultLauncherContext(launcher.getClassLoader(), newLauncher, launcher);
+	}
+	
+	public void launch(String[] args) {
+		launcher.launch(args);
 	}
 }
