@@ -33,11 +33,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Pack200;
 import java.util.regex.Pattern;
 
-// import net.minecraft.launchwrapper.Launch; // Unscrew: Remove unused import
-import cpw.mods.fml.relauncher.RelaunchClassLoader; // Unscrew: net.minecraft.launchwrapper.LaunchClassLoader -> cpw.mods.fml.relauncher.RelaunchClassLoader
-import net.minecraftforge.fml.common.FMLLog; // Unscrew: net.minecraftforge.fml.common.FMLLog -> cpw.mods.fml.common.FMLLog
-import net.minecraftforge.fml.relauncher.Side;
-import com.nothome.delta.GDiffPatcher; // Unscrew: Remove net.minecraftforge.fml.repackage prefix
 import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream; // Unscrew: LZMA.LzmaInputStream -> org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream
 
 import com.google.common.base.Joiner;
@@ -48,6 +43,15 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+// Unscrew start
+import com.hallowizer.unscrew.fml.classloading.ClassSource;
+// Unscrew end
+import com.nothome.delta.GDiffPatcher; // Unscrew: Remove net.minecraftforge.fml.repackage prefix
+
+// import net.minecraft.launchwrapper.Launch; // Unscrew: Remove unused import
+// import cpw.mods.fml.relauncher.RelaunchClassLoader; // Unscrew: Remove extra import
+import net.minecraftforge.fml.common.FMLLog; // Unscrew: net.minecraftforge.fml.common.FMLLog -> cpw.mods.fml.common.FMLLog
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ClassPatchManager {
     //Must be ABOVE INSTANCE so they get set in time for the constructor.
@@ -70,7 +74,7 @@ public class ClassPatchManager {
         }
     }
 
-    public byte[] getPatchedResource(String name, String mappedName, RelaunchClassLoader loader) throws IOException // Unscrew: LaunchClassLoader -> RelaunchClassLoader
+    public byte[] getPatchedResource(String name, String mappedName, ClassSource loader) throws IOException // Unscrew: LaunchClassLoader -> ClassSource
     {
         byte[] rawClassBytes = loader.getClassBytes(name);
         return applyPatch(name, mappedName, rawClassBytes);

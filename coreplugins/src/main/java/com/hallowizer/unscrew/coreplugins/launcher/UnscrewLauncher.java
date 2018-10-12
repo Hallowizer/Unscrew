@@ -63,6 +63,7 @@ public class UnscrewLauncher {
 	private void addExclusions(RelaunchClassLoader classLoader) {
 		classLoader.addClassLoaderExclusion("com.hallowizer.unscrew.coreplugins.launcher.");
 		classLoader.addClassLoaderExclusion("com.hallowizer.unscrew.api.");
+		classLoader.addClassLoaderExclusion("com.hallowizer.unscrew.fml.classloading.");
 		classLoader.addClassLoaderExclusion("net.minecraftforge.fml.relauncher.");
 		
 		classLoader.addTransformerExclusion("com.hallowizer.unscrew.coreplugins.transformer.");

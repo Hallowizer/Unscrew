@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cpw.mods.fml.relauncher.RelaunchClassLoader; // net.minecraft.launchwrapper.LaunchClassLoader -> cpw.mods.fml.relauncher.RelaunchClassLoader
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.common.patcher.ClassPatchManager;
+import javax.annotation.Nullable;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.commons.Remapper;
@@ -52,8 +50,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
+// Unscrew start
+import com.hallowizer.unscrew.fml.classloading.ClassSource;
+// Unscrew end
 
-import javax.annotation.Nullable;
+// import net.minecraft.launchwrapper.LaunchClassLoader; // Use ClassSource instead.
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.patcher.ClassPatchManager;
 
 public class FMLDeobfuscatingRemapper extends Remapper {
     public static final FMLDeobfuscatingRemapper INSTANCE = new FMLDeobfuscatingRemapper();
@@ -66,7 +69,7 @@ public class FMLDeobfuscatingRemapper extends Remapper {
     private Map<String,Map<String,String>> fieldNameMaps;
     private Map<String,Map<String,String>> methodNameMaps;
 
-    private RelaunchClassLoader classLoader; // Unscrew: LaunchClassLoader -> RelaunchClassLoader
+    private ClassSource classLoader; // Unscrew: LaunchClassLoader -> ClassSource
 
 
     private static final boolean DEBUG_REMAPPING = Boolean.parseBoolean(System.getProperty("fml.remappingDebug", "false"));
@@ -117,7 +120,7 @@ public class FMLDeobfuscatingRemapper extends Remapper {
         fieldNameMaps = Maps.newHashMapWithExpectedSize(rawFieldMaps.size());
 
     }
-    public void setup(File mcDir, RelaunchClassLoader classLoader, String deobfFileName) // Unscrew: LaunchClassLoader -> RelaunchClassLoader
+    public void setup(File mcDir, ClassSource classLoader, String deobfFileName) // Unscrew: LaunchClassLoader -> ClassSource
     {
         this.classLoader = classLoader;
         try

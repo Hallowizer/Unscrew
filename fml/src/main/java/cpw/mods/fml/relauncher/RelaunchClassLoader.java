@@ -30,16 +30,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.Attributes.Name;
 import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
-
+// Unscrew start
+import com.hallowizer.unscrew.fml.classloading.ClassSource;
+// Unscrew end
 import cpw.mods.fml.common.FMLLog;
 
-public class RelaunchClassLoader extends URLClassLoader
+public class RelaunchClassLoader extends URLClassLoader implements ClassSource // Unscrew: Add interface
 {
     private List<URL> sources;
     private ClassLoader parent;
