@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.hallowizer.unscrew</groupId>
+		<artifactId>unscrew-parent</artifactId>
+		<version>1.1</version>
+	</parent>
+	<artifactId>unscrew-patcher</artifactId>
+	<name>Unscrew-Patcher</name>
+	<description>Patcher for generating unpatched sources, binary patches, and applying source patches.</description>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.0</version>
+				
+				<executions>
+					<execution>
+						<phase>package</phase>
+						
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						
+						<configuration>
+							<artifactSet>
+								<includes>
+									<include>org.ow2.asm:asm</include> <!-- This list is overriding the parent list, we have to copy all of the stuff -->
+									<include>org.ow2.asm:asm-commons</include>
+									<include>org.ow2.asm:asm-tree</include>
+									
+									<include>com.google.guava:guava</include>
+									
+									<include>com.hallowizer.unscrew:unscrew-fml</include>
+								</includes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Main-Class>com.hallowizer.unscrew.patcher.Patcher</Main-Class>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.hallowizer.unscrew</groupId>
+			<artifactId>unscrew-fml</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+</project>

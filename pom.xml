@@ -12,6 +12,7 @@
 		<module>coreplugins</module>
 		<module>fml</module>
 		<module>api</module>
+		<module>patcher</module>
 	</modules>
 	
 	<build>
@@ -25,6 +26,33 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.1.0</version>
+				
+				<executions>
+					<execution>
+						<phase>package</phase>
+						
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						
+						<configuration>
+							<artifactSet>
+								<includes>
+									<include>org.ow2.asm:asm</include>
+									<include>org.ow2.asm:asm-commons</include>
+									<include>org.ow2.asm:asm-tree</include>
+									
+									<include>com.google.guava:guava</include>
+								</includes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -40,25 +68,25 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>23.0</version>
-			<scope>provided</scope>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
 			<version>6.2.1</version>
-			<scope>provided</scope>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-commons</artifactId>
 			<version>6.2.1</version>
-			<scope>provided</scope>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm-tree</artifactId>
 			<version>6.2.1</version>
-			<scope>provided</scope>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

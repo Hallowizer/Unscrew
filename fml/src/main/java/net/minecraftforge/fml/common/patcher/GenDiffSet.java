@@ -45,13 +45,14 @@ public class GenDiffSet {
 
     private static final List<String> RESERVED_NAMES = Arrays.asList("CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
 
-    public static void main(String[] args) throws IOException
+    public static void main(String sourceJar, String targetDir, String deobfData, String outputDir, boolean kill) throws IOException // Unscrew: String[] args -> String sourceJar, String targetDir, String deobfData, String outputDir, boolean kill
     {
-        String sourceJar = args[0]; //Clean Vanilla jar minecraft.jar or minecraft_server.jar
-        String targetDir = args[1]; //Directory containing obfed output classes, typically mcp/reobf/minecraft
-        String deobfData = args[2]; //Path to FML's deobfusication_data.lzma
-        String outputDir = args[3]; //Path to place generated .binpatch
-        String killTarget = args[4]; //"true" if we should destroy the target file if it generated a successful .binpatch
+    	// Unscrew: Remove duplicate variables
+//        String sourceJar = args[0]; //Clean Vanilla jar minecraft.jar or minecraft_server.jar
+//        String targetDir = args[1]; //Directory containing obfed output classes, typically mcp/reobf/minecraft
+//        String deobfData = args[2]; //Path to FML's deobfusication_data.lzma
+//        String outputDir = args[3]; //Path to place generated .binpatch
+//        String killTarget = args[4]; //"true" if we should destroy the target file if it generated a successful .binpatch // Unscrew: Remove unused variable
 
         Logger logger = LogManager.getLogger("FML.GENDIFF");
         logger.info("Creating patches at {} for {} from {}", outputDir, sourceJar, targetDir);
@@ -59,7 +60,7 @@ public class GenDiffSet {
         FMLDeobfuscatingRemapper remapper = FMLDeobfuscatingRemapper.INSTANCE;
         remapper.setupLoadOnly(deobfData, false);
         JarFile sourceZip = new JarFile(sourceJar);
-        boolean kill = killTarget.equalsIgnoreCase("true");
+        // boolean kill = killTarget.equalsIgnoreCase("true"); // Unscrew: Remove duplicate variable
 
         File f = new File(outputDir);
         f.mkdirs();
