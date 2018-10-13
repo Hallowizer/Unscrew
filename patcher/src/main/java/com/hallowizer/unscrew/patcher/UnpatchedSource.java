@@ -86,6 +86,8 @@ public class UnpatchedSource {
 	}
 	
 	private File deobfuscate(File source) {
+		FMLDeobfuscatingRemapper.INSTANCE.setup(null, new DirectoryClassSource(source), "deobfuscation-data-1.12.2.lzma");
+		
 		File deobf = new File("deobf");
 		if (deobf.exists()) {
 			System.out.println("Deobf folder exists, deleting");
