@@ -33,6 +33,11 @@
 									<include>org.ow2.asm:asm-tree</include>
 									
 									<include>com.google.guava:guava</include>
+									<include>org.apache.logging.log4j</include>
+									<include>com.nothome:javaxdelta</include>
+									
+									<include>org.apache.commons:commons-compress</include>
+									<include>org.tukaani:xz</include>
 									
 									<include>com.hallowizer.unscrew:unscrew-fml</include>
 								</includes>

@@ -86,7 +86,7 @@ public class UnpatchedSource {
 	}
 	
 	private File deobfuscate(File source) {
-		FMLDeobfuscatingRemapper.INSTANCE.setup(null, new DirectoryClassSource(source), "deobfuscation_data-1.12.2.lzma");
+		FMLDeobfuscatingRemapper.INSTANCE.setup(null, new DirectoryClassSource(source), "1.12.2");
 		
 		File deobf = new File("deobf");
 		if (deobf.exists()) {
@@ -112,6 +112,8 @@ public class UnpatchedSource {
 	
 	@SneakyThrows
 	private void deobfFile(File file, File target) {
+		System.out.println("Deobfuscating file " + file.getPath());
+		
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		FMLRemappingAdapter remapper = new FMLRemappingAdapter(cw);
 		ClassReader cr;
@@ -120,6 +122,8 @@ public class UnpatchedSource {
 			cr = new ClassReader(in);
 		}
 		
+		System.out.println("Class name: " + cr.getClassName());
+		
 		cr.accept(remapper, ClassReader.EXPAND_FRAMES);
 		byte[] bytes = cw.toByteArray();
 		
@@ -127,7 +131,7 @@ public class UnpatchedSource {
 		String mappedName = FMLDeobfuscatingRemapper.INSTANCE.map(name);
 		
 		File toWrite = new File(target, mappedName + ".class");
-		toWrite.mkdirs();
+		toWrite.getParentFile().mkdirs();
 		toWrite.createNewFile();
 		
 		Files.asByteSink(toWrite).write(bytes);
