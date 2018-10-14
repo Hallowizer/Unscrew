@@ -50,11 +50,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
+import com.hallowizer.unscrew.fml.asm.BukkitObfuscationRemapper;
 // Unscrew start
 import com.hallowizer.unscrew.fml.classloading.ClassSource;
 // Unscrew end
 
-// import net.minecraft.launchwrapper.LaunchClassLoader; // Use ClassSource instead.
+// import net.minecraft.launchwrapper.LaunchClassLoader; // Unscrew: Use ClassSource instead.
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.patcher.ClassPatchManager;
 
@@ -120,7 +121,7 @@ public class FMLDeobfuscatingRemapper extends Remapper {
         fieldNameMaps = Maps.newHashMapWithExpectedSize(rawFieldMaps.size());
 
     }
-    public void setup(File mcDir, ClassSource classLoader, String deobfFileName) // Unscrew: LaunchClassLoader -> ClassSource
+    public void setup(File mcDir, ClassSource classLoader, String version) // Unscrew: LaunchClassLoader -> ClassSource, deobfFileName -> version
     {
         this.classLoader = classLoader;
         try
@@ -131,6 +132,9 @@ public class FMLDeobfuscatingRemapper extends Remapper {
             if (Strings.isNullOrEmpty(gradleStartProp))
             {
                 // get as a resource
+            	// Unscrew start
+            	String deobfFileName = "/deobfuscation_data-" + version + ".lzma";
+            	// Unscrew end
                 InputStream classData = getClass().getResourceAsStream(deobfFileName);
                 LZMAInputSupplier zis = new LZMAInputSupplier(classData);
                 CharSource srgSource = zis.asCharSource(StandardCharsets.UTF_8);
@@ -172,6 +176,11 @@ public class FMLDeobfuscatingRemapper extends Remapper {
         }
         methodNameMaps = Maps.newHashMapWithExpectedSize(rawMethodMaps.size());
         fieldNameMaps = Maps.newHashMapWithExpectedSize(rawFieldMaps.size());
+        // Unscrew start
+        
+        BukkitObfuscationRemapper.getInstance().setup(version);
+        
+        // Unscrew end
     }
 
     public boolean isRemappedClass(String className)
@@ -272,6 +281,9 @@ public class FMLDeobfuscatingRemapper extends Remapper {
     }
 
     private void storeMemberFieldMapping(String owner, String name, String desc, String remappedName) {
+    	// Unscrew start
+    	owner = buildToolsToNotch(owner);
+    	// Unscrew end
         Map<String, String> fieldMap = getRawFieldMap(owner);
 
         String key = name + ":" + desc;
@@ -295,11 +307,15 @@ public class FMLDeobfuscatingRemapper extends Remapper {
 
     String mapFieldName(String owner, String name, @Nullable String desc, boolean raw)
     {
+    	// Unscrew start
+    	name = BukkitObfuscationRemapper.getInstance().mapFieldName(owner, name, desc);
+    	desc = BukkitObfuscationRemapper.getInstance().mapDesc(desc);
+    	// Unscrew end
         if (classNameBiMap == null || classNameBiMap.isEmpty())
         {
             return name;
         }
-        Map<String, String> fieldMap = getFieldMap(owner, raw);
+        Map<String, String> fieldMap = getFieldMap(buildToolsToNotch(owner), raw); // Unscrew: owner -> buildToolsToNotch(owner)
         return fieldMap!=null && fieldMap.containsKey(name+":"+desc) ? fieldMap.get(name+":"+desc) : fieldMap!=null && fieldMap.containsKey(name+":null") ? fieldMap.get(name+":null") :name;
     }
     
@@ -325,34 +341,45 @@ public class FMLDeobfuscatingRemapper extends Remapper {
 //        return typeName;
     	// Unscrew start
     	
-    	if (typeName.startsWith("org.bukkit.craftbukkit.")) {
-    		if (typeName.equals("org.bukkit.craftbukkit.Main"))
+    	if (typeName.startsWith("org/bukkit/craftbukkit/")) {
+    		if (typeName.equals("org/bukkit/craftbukkit/Main"))
     			return typeName;
     		
-    		String[] parts = typeName.split(".");
+    		String[] parts = typeName.split("/"); // org/bukkit/craftbukkit/VERSION/more/stuff
     		StringBuffer buf = new StringBuffer();
     		for (int i = 0; i < parts.length; i++)
-    			if (i == 3)
+    			if (i == 3 && parts[i].startsWith("v"))
     				versionPkg = parts[i];
     			else
-    				buf.append(".").append(parts[i]);
+    				buf.append("/").append(parts[i]);
     		
     		return buf.toString().substring(1);
     	}
     	
-    	if (!typeName.startsWith("net.minecraft.server."))
+    	if (!typeName.startsWith("net/minecraft/server/"))
     		return typeName;
     	
     	if (classNameBiMap == null || classNameBiMap.isEmpty())
     		return typeName;
     	
-    	String[] parts = typeName.split(typeName); // net.minecraft.server.VERSION.CLASS
-    	versionPkg = parts[3];
-    	String endName = parts[4];
+    	String[] parts = typeName.split("/"); // net.minecraft.server.VERSION.CLASS
+    	FMLLog.log.debug("Finding deobfuscated name for {}", typeName);
     	
-    	for (String deobfName : classNameBiMap.values())
-    		if (deobfName.endsWith("." + endName))
-    			return deobfName;
+    	String endName;
+    	if (parts.length == 5) {
+    		versionPkg = parts[3];
+    		endName = parts[4];
+    	} else
+    		endName = parts[3]; // If we are in the patcher, and Maven Shade hasn't relocated the classes.
+    	
+    	String obfName = BukkitObfuscationRemapper.getInstance().map(endName);
+    	
+    	if (classNameBiMap.containsKey(obfName))
+    		return classNameBiMap.get(obfName);
+    	
+    	int dollarIndex = typeName.lastIndexOf('$');
+    	if (dollarIndex > -1)
+    		return map(typeName.substring(0, dollarIndex)) + "$" + typeName.substring(dollarIndex+1);
     	
     	return typeName;
     	
@@ -379,38 +406,56 @@ public class FMLDeobfuscatingRemapper extends Remapper {
 //        return typeName;
     	// Unscrew start
     	
-    	if (typeName.startsWith("org.bukkit.craftbukkit.")) {
-    		if (typeName.equals("org.bukkit.craftbukkit.Main"))
+    	if (typeName.startsWith("org/bukkit/craftbukkit/")) {
+    		if (typeName.equals("org/bukkit/craftbukkit/Main"))
     			return typeName;
     		
     		StringBuffer buf = new StringBuffer();
-    		String[] parts = typeName.split(".");
+    		String[] parts = typeName.split("/");
     		
     		for (int i = 0; i < parts.length; i++)
-    			buf.append(i == 3 ? ("." + versionPkg) : "").append(".").append(parts[i]);
+    			buf.append(i == 3 ? ("/" + versionPkg) : "").append("/").append(parts[i]);
     		
     		return buf.toString().substring(1);
     	}
     	
-    	if (!typeName.startsWith("net.minecraft."))
+    	if (!typeName.startsWith("net/minecraft/"))
     		return typeName;
     	
-    	String[] parts = typeName.split(".");
-    	String endName = parts[parts.length-1];
+    	String obfName = reobfuscate(typeName);
+    	String mappedName = BukkitObfuscationRemapper.getInstance().unmap(obfName);
+    	String endName = mappedName.substring(mappedName.lastIndexOf('/')+1);
     	
-    	return "net.minecraft.server." + versionPkg + "." + endName;
+    	return "net/minecraft/server/" + versionPkg + "/" + endName;
     	// Unscrew end
     }
-
+    // Unscrew start
+    
+    private String buildToolsToNotch(String typeName) { // Because MCP field and method mappings have obfuscated class names.
+    	return reobfuscate(map(typeName));
+    }
+    
+    private String reobfuscate(String typeName) {
+    	if (classNameBiMap.containsValue(typeName))
+    		return classNameBiMap.inverse().get(typeName);
+    	
+    	int dollar = typeName.lastIndexOf('$');
+    	return dollar > -1 ? (reobfuscate(typeName.substring(0, dollar)) + "$" + typeName.substring(dollar+1)) : typeName;
+    }
+    // Unscrew end
 
     @Override
     public String mapMethodName(String owner, String name, String desc)
     {
+    	// Unscrew start
+    	name = BukkitObfuscationRemapper.getInstance().mapMethodName(owner, name, desc);
+    	desc = BukkitObfuscationRemapper.getInstance().mapMethodDesc(desc);
+    	// Unscrew end
         if (classNameBiMap==null || classNameBiMap.isEmpty())
         {
             return name;
         }
-        Map<String, String> methodMap = getMethodMap(owner);
+        Map<String, String> methodMap = getMethodMap(buildToolsToNotch(owner)); // Unscrew: owner -> buildToolsToNotch(owner)
         String methodDescriptor = name+desc;
         return methodMap!=null && methodMap.containsKey(methodDescriptor) ? methodMap.get(methodDescriptor) : name;
     }

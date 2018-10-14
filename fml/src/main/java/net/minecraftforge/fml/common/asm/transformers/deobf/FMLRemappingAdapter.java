@@ -74,7 +74,7 @@ public class FMLRemappingAdapter extends ClassRemapper { // Unscrew: RemappingCl
         return new StaticFixingMethodVisitor(mv, remapper); // Unscrew: (access, newDesc, mv, remapper) -> (mv, remapper)
     }
 
-    private static class StaticFixingMethodVisitor extends MethodRemapper // Unscrew: RemappingMethodAdapter -> MethodRemapper
+	private static class StaticFixingMethodVisitor extends MethodRemapper // Unscrew: RemappingMethodAdapter -> MethodRemapper
     {
 
         public StaticFixingMethodVisitor(MethodVisitor mv, Remapper remapper) // Unscrew: (int,String,MethodVisitor,Remapper) -> (MethodVisitor,Remapper)
