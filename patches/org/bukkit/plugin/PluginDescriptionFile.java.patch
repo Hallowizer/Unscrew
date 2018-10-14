@@ -1,0 +1,47 @@
+--- src-base/org/bukkit/plugin/PluginDescriptionFile.java	2018-10-13 22:12:56.000000000 -0700
++++ unscrew-patching/src/main/java/org/bukkit/plugin/PluginDescriptionFile.java	2018-10-14 13:14:42.000000000 -0700
+@@ -28,7 +28,7 @@
+       protected Yaml initialValue() {
+          return new Yaml(new SafeConstructor() {
+             {
+-               this.yamlConstructors.put((Object)null, new AbstractConstruct() {
++               this.yamlConstructors.put((Tag)null, new AbstractConstruct() {
+                   public Object construct(final Node var1) {
+                      return !var1.getTag().startsWith("!@") ? SafeConstructor.undefinedConstructor.construct(var1) : new PluginAwareness() {
+                         public String toString() {
+@@ -46,24 +46,12 @@
+                      public PluginAwareness.Flags construct(Node var1) {
+                         return var2;
+                      }
+-
+-                     // $FF: synthetic method
+-                     // $FF: bridge method
+-                     public Object construct(Node var1) {
+-                        return this.construct(var1);
+-                     }
+                   });
+                }
+ 
+             }
+          });
+       }
+-
+-      // $FF: synthetic method
+-      // $FF: bridge method
+-      protected Object initialValue() {
+-         return this.initialValue();
+-      }
+    };
+    String rawName = null;
+    private String name = null;
+@@ -83,6 +71,10 @@
+    private Map<?, ?> lazyPermissions;
+    private PermissionDefault defaultPerm;
+    private Set<PluginAwareness> awareness;
++   
++   public PluginDescriptionFile(Map<String,Object> map) throws InvalidDescriptionException {
++	   loadMap(map);
++   }
+ 
+    public PluginDescriptionFile(InputStream var1) throws InvalidDescriptionException {
+       this.order = PluginLoadOrder.POSTWORLD;

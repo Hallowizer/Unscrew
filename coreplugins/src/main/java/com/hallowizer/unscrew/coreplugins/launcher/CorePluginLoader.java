@@ -3,6 +3,7 @@ package com.hallowizer.unscrew.coreplugins.launcher;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -28,6 +29,8 @@ public class CorePluginLoader {
 	};
 	private final Yaml yaml = new Yaml();
 	private final List<CorePluginWrapper> corePlugins = new ArrayList<>();
+	private final Map<File,Map<String,Object>> corePluginDescriptions = new HashMap<>();
+	private final Map<File,CorePluginWrapper> corePluginMap = new HashMap<>();
 	private DefaultLauncherContext launcher;
 	
 	@SneakyThrows
@@ -67,6 +70,7 @@ public class CorePluginLoader {
 						String main = map.get("main").toString();
 						
 						classLoader.addURL(file.toURI().toURL());
+						corePluginDescriptions.put(file, map);
 						loadCorePlugin(classLoader, name, main, file);
 					}
 				}
@@ -82,7 +86,9 @@ public class CorePluginLoader {
 		if (plugin instanceof BuiltinCorePlugin)
 			name = ((BuiltinCorePlugin) plugin).getName();
 		
-		corePlugins.add(new CorePluginWrapper(name, location, plugin));
+		CorePluginWrapper wrapper = new CorePluginWrapper(name, location, plugin);
+		corePlugins.add(wrapper);
+		corePluginMap.put(location, wrapper);
 	}
 	
 	public List<CorePluginWrapper> getCorePlugins() {
@@ -95,5 +101,17 @@ public class CorePluginLoader {
 	
 	public void launch(String[] args) {
 		launcher.launch(args);
+	}
+	
+	public boolean isCorePlugin(File file) {
+		return corePluginDescriptions.containsKey(file);
+	}
+	
+	public Map<String,Object> getDescription(File file) {
+		return corePluginDescriptions.get(file);
+	}
+	
+	public Object getBukkitPlugin(File file) {
+		return corePluginMap.get(file).getPlugin();
 	}
 }

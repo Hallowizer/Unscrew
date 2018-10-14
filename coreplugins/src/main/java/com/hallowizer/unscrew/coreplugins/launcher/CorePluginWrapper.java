@@ -23,6 +23,10 @@ public final class CorePluginWrapper {
 		return instance.getSortingIndex();
 	}
 	
+	public Object getPlugin() {
+		return instance.getBukkitPlugin();
+	}
+	
 	public void invoke() {
 		instance.injectData(CorePluginLoader.getCorePlugins().stream().map(wrapper -> wrapper.instance).collect(Collectors.toList()), location);
 		

@@ -1,0 +1,32 @@
+--- src-base/org/bukkit/plugin/java/JavaPluginLoader.java	2018-10-13 22:11:47.000000000 -0700
++++ unscrew-patching/src/main/java/org/bukkit/plugin/java/JavaPluginLoader.java	2018-10-14 13:04:31.000000000 -0700
+@@ -42,6 +42,9 @@
+ import org.spigotmc.CustomTimingsHandler;
+ import org.yaml.snakeyaml.error.YAMLException;
+ 
++import com.hallowizer.unscrew.coreplugins.Unscrew;
++import com.hallowizer.unscrew.coreplugins.launcher.CorePluginLoader;
++
+ public final class JavaPluginLoader implements PluginLoader {
+    final Server server;
+    private final Pattern[] fileFilters = new Pattern[]{Pattern.compile("\\.jar$")};
+@@ -61,6 +64,9 @@
+       if (!var1.exists()) {
+          throw new InvalidPluginException(new FileNotFoundException(var1.getPath() + " does not exist"));
+       } else {
++    	  if (CorePluginLoader.isCorePlugin(var1))
++    		  return Unscrew.loadPlugin(var1);
++    	  
+          PluginDescriptionFile var2;
+          try {
+             var2 = this.getPluginDescription(var1);
+@@ -115,6 +121,9 @@
+       Validate.notNull(var1, "File cannot be null");
+       JarFile var2 = null;
+       InputStream var3 = null;
++      
++      if (CorePluginLoader.isCorePlugin(var1))
++    	  return Unscrew.getPluginDescription(var1);
+ 
+       PluginDescriptionFile var6;
+       try {
