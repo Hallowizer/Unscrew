@@ -1,0 +1,159 @@
+--- src-base/org/bukkit/plugin/java/PluginClassLoader.java	2018-10-13 22:11:47.000000000 -0700
++++ unscrew-patching/src/main/java/org/bukkit/plugin/java/PluginClassLoader.java	2018-10-14 12:23:58.000000000 -0700
+@@ -1,28 +1,25 @@
+ package org.bukkit.plugin.java;
+ 
+-import com.google.common.io.ByteStreams;
+ import java.io.File;
+ import java.io.IOException;
+-import java.io.InputStream;
+ import java.lang.reflect.Method;
+ import java.net.MalformedURLException;
+ import java.net.URL;
+-import java.net.URLClassLoader;
+-import java.security.CodeSigner;
+-import java.security.CodeSource;
+ import java.util.Map;
+ import java.util.Set;
+ import java.util.concurrent.ConcurrentHashMap;
+-import java.util.jar.JarEntry;
+ import java.util.jar.JarFile;
+ import java.util.jar.Manifest;
+ import java.util.logging.Level;
++
+ import org.apache.commons.lang.Validate;
+ import org.bukkit.Bukkit;
+ import org.bukkit.plugin.InvalidPluginException;
+ import org.bukkit.plugin.PluginDescriptionFile;
+ 
+-final class PluginClassLoader extends URLClassLoader {
++import cpw.mods.fml.relauncher.RelaunchClassLoader;
++
++final class PluginClassLoader extends ClassLoader {
+    private final JavaPluginLoader loader;
+    private final Map<String, Class<?>> classes = new ConcurrentHashMap();
+    private final PluginDescriptionFile description;
+@@ -34,6 +31,8 @@
+    final JavaPlugin plugin;
+    private JavaPlugin pluginInit;
+    private IllegalStateException pluginState;
++   
++   private final RelaunchClassLoader parent = (RelaunchClassLoader) getClass().getClassLoader();
+ 
+    static {
+       try {
+@@ -53,7 +52,6 @@
+    }
+ 
+    PluginClassLoader(JavaPluginLoader var1, ClassLoader var2, PluginDescriptionFile var3, File var4, File var5) throws IOException, InvalidPluginException, MalformedURLException {
+-      super(new URL[]{var5.toURI().toURL()}, var2);
+       Validate.notNull(var1, "Loader cannot be null");
+       this.loader = var1;
+       this.description = var3;
+@@ -62,6 +60,8 @@
+       this.jar = new JarFile(var5);
+       this.manifest = this.jar.getManifest();
+       this.url = var5.toURI().toURL();
++      
++      parent.addURL(var5.toURI().toURL());
+ 
+       try {
+          Class var6;
+@@ -91,95 +91,11 @@
+    }
+ 
+    Class<?> findClass(String var1, boolean var2) throws ClassNotFoundException {
+-      if (!var1.startsWith("org.bukkit.") && !var1.startsWith("net.minecraft.")) {
+-         Class var3 = (Class)this.classes.get(var1);
+-         if (var3 == null) {
+-            if (var2) {
+-               var3 = this.loader.getClassByName(var1);
+-            }
+-
+-            if (var3 == null) {
+-               String var4 = var1.replace('.', '/').concat(".class");
+-               JarEntry var5 = this.jar.getJarEntry(var4);
+-               if (var5 != null) {
+-                  byte[] var6;
+-                  String var8;
+-                  try {
+-                     Throwable var7 = null;
+-                     var8 = null;
+-
+-                     try {
+-                        InputStream var9 = this.jar.getInputStream(var5);
+-
+-                        try {
+-                           var6 = ByteStreams.toByteArray(var9);
+-                        } finally {
+-                           if (var9 != null) {
+-                              var9.close();
+-                           }
+-
+-                        }
+-                     } catch (Throwable var19) {
+-                        if (var7 == null) {
+-                           var7 = var19;
+-                        } else if (var7 != var19) {
+-                           var7.addSuppressed(var19);
+-                        }
+-
+-                        throw var7;
+-                     }
+-                  } catch (IOException var20) {
+-                     throw new ClassNotFoundException(var1, var20);
+-                  }
+-
+-                  int var22 = var1.lastIndexOf(46);
+-                  if (var22 != -1) {
+-                     var8 = var1.substring(0, var22);
+-                     if (this.getPackage(var8) == null) {
+-                        try {
+-                           if (this.manifest != null) {
+-                              this.definePackage(var8, this.manifest, this.url);
+-                           } else {
+-                              this.definePackage(var8, (String)null, (String)null, (String)null, (String)null, (String)null, (String)null, (URL)null);
+-                           }
+-                        } catch (IllegalArgumentException var21) {
+-                           if (this.getPackage(var8) == null) {
+-                              throw new IllegalStateException("Cannot find package " + var8);
+-                           }
+-                        }
+-                     }
+-                  }
+-
+-                  CodeSigner[] var23 = var5.getCodeSigners();
+-                  CodeSource var24 = new CodeSource(this.url, var23);
+-                  var3 = this.defineClass(var1, var6, 0, var6.length, var24);
+-               }
+-
+-               if (var3 == null) {
+-                  var3 = super.findClass(var1);
+-               }
+-
+-               if (var3 != null) {
+-                  this.loader.setClass(var1, var3);
+-               }
+-            }
+-
+-            this.classes.put(var1, var3);
+-         }
+-
+-         return var3;
+-      } else {
+-         throw new ClassNotFoundException(var1);
+-      }
++      return parent.loadClass(var1);
+    }
+ 
+    public void close() throws IOException {
+-      try {
+-         super.close();
+-      } finally {
+-         this.jar.close();
+-      }
+-
++      // NOOP
+    }
+ 
+    Set<String> getClasses() {
