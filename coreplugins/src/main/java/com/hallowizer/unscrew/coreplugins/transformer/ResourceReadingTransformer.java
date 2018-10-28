@@ -8,7 +8,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import com.hallowizer.unscrew.api.IClassTransformer;
+import com.hallowizer.modwrapper.api.IClassTransformer;
 
 public final class ResourceReadingTransformer implements IClassTransformer {
 	@Override

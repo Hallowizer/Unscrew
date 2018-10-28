@@ -1,6 +1,7 @@
 package com.hallowizer.unscrew.coreplugins.transformer;
 
-import cpw.mods.fml.relauncher.IClassTransformer;
+import com.hallowizer.modwrapper.api.IClassTransformer;
+
 import net.minecraftforge.fml.common.patcher.ClassPatchManager;
 
 public final class PatchingTransformer implements IClassTransformer {

@@ -3,6 +3,7 @@ package com.hallowizer.unscrew.coreplugins.launcher;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,11 @@ import org.yaml.snakeyaml.Yaml;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.hallowizer.modwrapper.api.ConfigurableClassLoader;
 import com.hallowizer.unscrew.api.CorePlugin;
 import com.hallowizer.unscrew.api.ILauncher;
+import com.hallowizer.unscrew.coreplugins.transformer.PatchingTransformer;
 
-import cpw.mods.fml.relauncher.RelaunchClassLoader;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -34,22 +36,20 @@ public class CorePluginLoader {
 	private DefaultLauncherContext launcher;
 	
 	@SneakyThrows
-	public void setup(RelaunchClassLoader classLoader, File unscrewJarLocation) {
-		classLoader.registerTransformer("com.hallowizer.unscrew.coreplugins.transformer.PatchingTransformer");
-		classLoader.registerTransformer("com.hallowizer.unscrew.coreplugins.transformer.RenamingTransformer");
+	public void setup(ConfigurableClassLoader classLoader, File unscrewJarLocation) {
+		classLoader.registerTransformer(new PatchingTransformer());
 		
 		launcher = new DefaultLauncherContext(classLoader, new SpigotLauncher(), null);
 		
 		for (String plugin : builtinCorePlugins)
-			loadCorePlugin(classLoader, null, plugin, unscrewJarLocation);
+			loadCorePlugin(classLoader, null, plugin, unscrewJarLocation, plugin.endsWith("UnscrewCorePlugin") ? ImmutableList.of("ModCoderPack") : ImmutableList.of());
 		
 		findCorePlugins(classLoader);
-		corePlugins.sort((plugin1, plugin2) -> plugin1.getSortingIndex()-plugin2.getSortingIndex());
-		corePlugins.forEach(CorePluginWrapper::invoke);
+		corePlugins.forEach(wrapper -> wrapper.invoke(classLoader));
 	}
 	
 	@SneakyThrows
-	private void findCorePlugins(RelaunchClassLoader classLoader) {
+	private void findCorePlugins(ConfigurableClassLoader classLoader) {
 		File pluginsDir = new File("plugins");
 		if (!pluginsDir.exists())
 			pluginsDir.mkdir();
@@ -71,7 +71,12 @@ public class CorePluginLoader {
 						
 						classLoader.addURL(file.toURI().toURL());
 						corePluginDescriptions.put(file, map);
-						loadCorePlugin(classLoader, name, main, file);
+						
+						List<String> depends = new ArrayList<String>(Arrays.asList(Iterables.toArray(Iterables.transform(dependencies, Object::toString), String.class)));
+						depends.remove("Unscrew");
+						depends.addAll(Arrays.asList(Iterables.toArray(Iterables.transform((Iterable<?>) map.get("softdepend"), Object::toString), String.class)));
+						
+						loadCorePlugin(classLoader, name, main, file, depends);
 					}
 				}
 			}
@@ -79,14 +84,14 @@ public class CorePluginLoader {
 	
 	@SuppressWarnings("unchecked")
 	@SneakyThrows
-	private void loadCorePlugin(RelaunchClassLoader classLoader, String name, String main, File location) {
+	private void loadCorePlugin(ConfigurableClassLoader classLoader, String name, String main, File location, List<String> depends) {
 		Class<? extends CorePlugin> clazz = (Class<? extends CorePlugin>) Class.forName(main, true, classLoader);
 		CorePlugin plugin = clazz.newInstance();
 		
 		if (plugin instanceof BuiltinCorePlugin)
 			name = ((BuiltinCorePlugin) plugin).getName();
 		
-		CorePluginWrapper wrapper = new CorePluginWrapper(name, location, plugin);
+		CorePluginWrapper wrapper = new CorePluginWrapper(name, location, plugin, depends);
 		corePlugins.add(wrapper);
 		corePluginMap.put(location, wrapper);
 	}

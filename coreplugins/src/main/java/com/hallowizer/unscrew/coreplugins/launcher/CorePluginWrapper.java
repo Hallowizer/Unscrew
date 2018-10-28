@@ -1,45 +1,36 @@
 package com.hallowizer.unscrew.coreplugins.launcher;
 
 import java.io.File;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hallowizer.modwrapper.api.ConfigurableClassLoader;
+import com.hallowizer.modwrapper.api.IClassTransformer;
 import com.hallowizer.unscrew.api.CorePlugin;
-import com.hallowizer.unscrew.api.IClassNameTransformer;
-import com.hallowizer.unscrew.api.IClassTransformer;
 import com.hallowizer.unscrew.api.ILauncher;
-import com.hallowizer.unscrew.coreplugins.transformer.PluginWrapperTransformer;
-import com.hallowizer.unscrew.coreplugins.transformer.RenamingTransformer;
 
-import cpw.mods.fml.relauncher.RelaunchClassLoader;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public final class CorePluginWrapper {
+	@Getter
 	private final String name;
 	private final File location;
 	private final CorePlugin instance;
-	
-	public int getSortingIndex() {
-		return instance.getSortingIndex();
-	}
+	private final List<String> depends;
 	
 	public Object getPlugin() {
 		return instance.getBukkitPlugin();
 	}
 	
-	public void invoke() {
+	public void invoke(ConfigurableClassLoader classLoader) {
 		instance.injectData(CorePluginLoader.getCorePlugins().stream().map(wrapper -> wrapper.instance).collect(Collectors.toList()), location);
-		
-		RelaunchClassLoader classLoader = (RelaunchClassLoader) instance.getClass().getClassLoader();
 		
 		IClassTransformer[] transformers = instance.getClassTransformers();
 		if (transformers != null)
-			for (IClassTransformer transformer : instance.getClassTransformers()) {
-				classLoader.registerTransformer(new PluginWrapperTransformer(name, transformer));
-				
-				if (transformer instanceof IClassNameTransformer)
-					RenamingTransformer.addTransformer((IClassNameTransformer) transformer);
-			}
+			for (IClassTransformer transformer : instance.getClassTransformers())
+				classLoader.registerTransformer(transformer);
 		
 		ILauncher launcher = instance.getLauncher();
 		if (launcher != null)

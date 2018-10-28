@@ -38,9 +38,4 @@ public final class UnscrewCorePlugin extends BuiltinCorePlugin {
 			for (IResourceTransformer transformer : plugin.getResourceTransformers())
 				ResourceManager.registerTransformer(transformer);
 	}
-	
-	@Override
-	public int getSortingIndex() {
-		return -1;
-	}
 }

@@ -43,8 +43,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-// Unscrew start
-import com.hallowizer.unscrew.fml.classloading.ClassSource;
+import com.hallowizer.unscrew.fml.asm.ClassSource;
 // Unscrew end
 import com.nothome.delta.GDiffPatcher; // Unscrew: Remove net.minecraftforge.fml.repackage prefix
 

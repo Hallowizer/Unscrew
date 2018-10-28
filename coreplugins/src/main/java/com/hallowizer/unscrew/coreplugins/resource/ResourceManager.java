@@ -15,11 +15,11 @@ import java.util.jar.JarFile;
 import org.yaml.snakeyaml.Yaml;
 
 import com.google.common.io.ByteStreams;
+import com.hallowizer.modwrapper.api.ConfigurableClassLoader;
 import com.hallowizer.unscrew.api.resource.IResourceTransformer;
 import com.hallowizer.unscrew.api.resource.Resource;
 import com.hallowizer.unscrew.coreplugins.UnscrewCorePlugin;
 
-import cpw.mods.fml.relauncher.RelaunchClassLoader;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 
@@ -29,8 +29,12 @@ public class ResourceManager {
 	private final Map<String,byte[]> resourceCache = new HashMap<>();
 	private final DefaultResourceContext ctx = new DefaultResourceContext();
 	private final Map<URL,String> urlMap = new HashMap<>();
-	private final RelaunchClassLoader classLoader = (RelaunchClassLoader) ResourceManager.class.getClassLoader();
+	private ConfigurableClassLoader classLoader;
 	private final Yaml yaml = new Yaml();
+	
+	public void init(ConfigurableClassLoader classLoader) {
+		ResourceManager.classLoader = classLoader;
+	}
 	
 	public void registerTransformer(IResourceTransformer transformer) {
 		transformers.add(transformer);

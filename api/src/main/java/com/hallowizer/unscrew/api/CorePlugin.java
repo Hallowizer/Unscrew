@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.hallowizer.modwrapper.api.IClassTransformer;
 import com.hallowizer.unscrew.api.resource.IResourceTransformer;
 
 public abstract class CorePlugin {
@@ -18,10 +19,6 @@ public abstract class CorePlugin {
 	
 	public void injectData(List<CorePlugin> corePlugins, File location) {
 		// NOOP
-	}
-	
-	public int getSortingIndex() {
-		return 0;
 	}
 	
 	public ILauncher getLauncher() {

@@ -2,10 +2,10 @@ package com.hallowizer.unscrew.coreplugins.launcher;
 
 import java.lang.reflect.Method;
 
+import com.hallowizer.modwrapper.api.ConfigurableClassLoader;
 import com.hallowizer.unscrew.api.ILauncher;
 import com.hallowizer.unscrew.api.LauncherContext;
 
-import cpw.mods.fml.relauncher.RelaunchClassLoader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -13,7 +13,7 @@ import lombok.SneakyThrows;
 @RequiredArgsConstructor
 public final class DefaultLauncherContext implements LauncherContext {
 	@Getter
-	private final RelaunchClassLoader classLoader;
+	private final ConfigurableClassLoader classLoader;
 	private final ILauncher launcher;
 	private final DefaultLauncherContext next;
 	

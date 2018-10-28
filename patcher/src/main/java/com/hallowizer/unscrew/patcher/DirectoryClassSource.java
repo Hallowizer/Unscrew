@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.google.common.io.Files;
-import com.hallowizer.unscrew.fml.classloading.ClassSource;
+import com.hallowizer.unscrew.fml.asm.ClassSource;
 
 import lombok.RequiredArgsConstructor;
 

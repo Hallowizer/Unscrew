@@ -21,18 +21,17 @@ package net.minecraftforge.fml.common.asm.transformers;
 
 import java.util.Arrays;
 
-import com.hallowizer.unscrew.api.IClassNameTransformer; // Unscrew: net.minecraft.launchwrapper.IClassNameTransformer -> com.hallowizer.unscrew.api.IClassNameTransformer
-import com.hallowizer.unscrew.api.IClassTransformer; // Unscrew: net.minecraft.launchwrapper.IClassTransformer -> com.hallowizer.unscrew.api.IClassTransformer
-// import net.minecraft.launchwrapper.Launch; // Unscrew: Remove unused import
-
-import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.ClassRemapper; // Unscrew: org.objectweb.asm.commons.RemappingClassAdapter -> org.objectweb.asm.commons.ClassRemapper
 
-public class DeobfuscationTransformer implements IClassTransformer, IClassNameTransformer {
+// Unscrew: Remove IClassTransformer import
+import com.hallowizer.modwrapper.api.IRenamingClassTransformer; // Unscrew: net.minecraft.launchwrapper.IClassNameTransformer -> com.hallowizer.modwrapper.api.IRenamingClassTransformer
+
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
+
+public class DeobfuscationTransformer implements IRenamingClassTransformer {
     private static final String[] EXEMPT_LIBS = new String[] {
             "com.google.",
             "com.mojang.",

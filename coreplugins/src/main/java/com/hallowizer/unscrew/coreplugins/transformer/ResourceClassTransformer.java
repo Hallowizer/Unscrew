@@ -1,6 +1,6 @@
 package com.hallowizer.unscrew.coreplugins.transformer;
 
-import com.hallowizer.unscrew.api.IClassTransformer;
+import com.hallowizer.modwrapper.api.IClassTransformer;
 import com.hallowizer.unscrew.coreplugins.resource.ResourceManager;
 
 public final class ResourceClassTransformer implements IClassTransformer {

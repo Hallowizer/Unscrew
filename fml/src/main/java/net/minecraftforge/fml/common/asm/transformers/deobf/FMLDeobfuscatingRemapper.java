@@ -51,9 +51,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.CharSource;
 import com.google.common.io.Files;
 import com.hallowizer.unscrew.fml.asm.BukkitObfuscationRemapper;
-// Unscrew start
-import com.hallowizer.unscrew.fml.classloading.ClassSource;
-// Unscrew end
+import com.hallowizer.unscrew.fml.asm.ClassSource;
 
 // import net.minecraft.launchwrapper.LaunchClassLoader; // Unscrew: Use ClassSource instead.
 import net.minecraftforge.fml.common.FMLLog;

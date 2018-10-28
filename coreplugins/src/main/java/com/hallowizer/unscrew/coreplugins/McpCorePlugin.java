@@ -28,9 +28,4 @@ public final class McpCorePlugin extends BuiltinCorePlugin {
 	public void injectData(List<CorePlugin> corePlugins, File location) {
 		FMLDeobfuscatingRemapper.INSTANCE.setup(null, (RelaunchClassLoader) getClass().getClassLoader(), "deobfuscation_data-1.12.2.lzma");
 	}
-	
-	@Override
-	public int getSortingIndex() {
-		return -1000;
-	}
 }

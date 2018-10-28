@@ -1,4 +1,4 @@
-package com.hallowizer.unscrew.fml.classloading;
+package com.hallowizer.unscrew.fml.asm;
 
 import java.io.IOException;
 
